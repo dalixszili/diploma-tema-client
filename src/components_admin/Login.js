@@ -15,7 +15,7 @@ function Login() {
   );
 
   useEffect(() => {
-    if (user || isSucces) {
+    if (user && isSucces) {
       navigate("/admin");
     }
     dispatch(reset());
@@ -66,6 +66,7 @@ function Login() {
           margin="normal"
           required
           fullWidth
+          autoComplete="true"
           name="password"
           label="Jelszó"
           type="password"

@@ -1,11 +1,3 @@
-// import CRUDTable, {
-//   Fields,
-//   Field,
-//   CreateForm,
-//   UpdateForm,
-//   DeleteForm,
-// } from "react-crud-table";
-// import "../style/Userlist.css";
 import React, { useState, useEffect } from "react";
 import DeleteIcon from "@mui/icons-material/Delete";
 import ModeEditIcon from "@mui/icons-material/ModeEdit";
@@ -17,8 +9,12 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  FormControl,
   Grid,
+  InputLabel,
+  MenuItem,
   Paper,
+  Select,
   Table,
   TableBody,
   TableCell,
@@ -28,40 +24,10 @@ import {
   TextField,
 } from "@mui/material";
 
-let userlist = [
-  {
-    id: 1,
-    name: "name",
-    email: "email2@email.com",
-    password: "hashPassword",
-    confpassword: "hashPassword",
-    university: "university",
-    department: "department",
-    profile: "profile",
-    year: 2,
-    role: 2,
-    employment: "employment",
-    job_title: "job_title",
-  },
-  {
-    id: 2,
-    name: "testadmin",
-    email: "admin@email.com",
-    password: "hashPassword",
-    confpassword: "hashPassword",
-    university: "university",
-    department: "department",
-    profile: "profile",
-    year: 2,
-    role: 1,
-    employment: "employment",
-    job_title: "job_title",
-  },
-];
-
 function Userlist() {
-  const [data, setData] = useState(userlist);
-  const [open, setOpen] = useState(false);
+  const [data, setData] = useState([{}]);
+  const [openstud, setOpenstud] = useState(false);
+  const [openteacher, setOpenteacher] = useState(false);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -70,20 +36,27 @@ function Userlist() {
     department: "",
     profile: "",
     year: 0,
-    role: 0,
+    role: "",
     employment: "",
     job_title: "",
   });
-  const [editing, setEditing] = useState(false);
   const [editId, setEditId] = useState(null);
 
   const fetchData = async () => {
     const response = await axios.get("http://localhost:5000/users");
-    setData(response.data);
+    const responseData = response.data;
+    const newData = responseData.map((obj) => {
+      if (obj.role === 2) {
+        return { ...obj, role: "Diák" };
+      } else {
+        return { ...obj, role: "Zsűri" };
+      }
+    });
+    setData(newData);
   };
 
   const deleteData = async (id) => {
-    await axios.delete(`http://localhost:5000/users/${id}`);
+    await axios.patch(`http://localhost:5000/users/delete/${id}`);
     fetchData();
   };
   // () => editData(item.id)
@@ -91,8 +64,7 @@ function Userlist() {
     const response = await axios.get(`http://localhost:5000/users/${id}`);
     setFormData(response.data);
     setEditId(id);
-    setEditing(true);
-    handleOpen();
+    handleOpen(response.data.role);
   };
 
   const updateData = async () => {
@@ -110,7 +82,6 @@ function Userlist() {
       employment: "",
       job_title: "",
     });
-    setEditing(false);
     setEditId(null);
   };
 
@@ -123,8 +94,9 @@ function Userlist() {
     fetchData();
   }, []);
 
-  const handleOpen = () => {
-    setOpen(true);
+  const handleOpen = (role) => {
+    if (role === 2) setOpenstud(true);
+    else setOpenteacher(true);
   };
 
   const handleClose = () => {
@@ -139,9 +111,9 @@ function Userlist() {
       employment: "",
       job_title: "",
     });
-    setEditing(false);
     setEditId(null);
-    setOpen(false);
+    setOpenstud(false);
+    setOpenteacher(false);
   };
 
   return (
@@ -153,7 +125,7 @@ function Userlist() {
         width: "80%",
       }}
     >
-      <h2>Felhasználók</h2>
+      <h1>Felhasználók</h1>
       <h3>Diákok és zsűritagok kezelése</h3>
 
       <Grid
@@ -164,7 +136,15 @@ function Userlist() {
         <TableContainer component={Paper}>
           <Table>
             <TableHead>
-              <TableRow>
+              <TableRow
+                sx={{
+                  borderBottom: "2px solid black",
+                  "& th": {
+                    fontSize: "1.25rem",
+                    color: "rgba(96, 96, 96)",
+                  },
+                }}
+              >
                 <TableCell>Név</TableCell>
                 <TableCell>E-mail</TableCell>
                 <TableCell>Egyetem</TableCell>
@@ -172,12 +152,17 @@ function Userlist() {
                 <TableCell>Szak</TableCell>
                 <TableCell>Évfolyam</TableCell>
                 <TableCell>Jog</TableCell>
-                <TableCell>Eszközök</TableCell>
+                <TableCell align="center">Eszközök</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {data.map((item) => (
-                <TableRow key={item.id}>
+              {data.map((item, index) => (
+                <TableRow
+                  key={index}
+                  sx={{
+                    ":hover": { bgcolor: "#edfff2" },
+                  }}
+                >
                   <TableCell>{item.name}</TableCell>
                   <TableCell>{item.email}</TableCell>
                   <TableCell>{item.university}</TableCell>
@@ -198,7 +183,9 @@ function Userlist() {
                       Szerkesztés
                     </Button>
 
-                    <Dialog open={open} onClose={handleClose}>
+                    {/* Update Student  */}
+
+                    <Dialog open={openstud} onClose={handleClose}>
                       <DialogTitle>Felhasználó Szerkesztése</DialogTitle>
                       <DialogContent>
                         <form
@@ -288,8 +275,75 @@ function Userlist() {
                             fullWidth
                             name="year"
                             label="Évfolyam:"
+                            type="number"
+                            InputProps={{ inputProps: { min: 1, max: 4 } }}
                             id="year"
                             defaultValue={formData.year}
+                            onChange={(e) => {
+                              if (e.target.value > 0 && e.target.value < 5) {
+                                setFormData({
+                                  ...formData,
+                                  [e.target.name]: e.target.value,
+                                });
+                              }
+                            }}
+                          />
+                          <FormControl fullWidth>
+                            <InputLabel id="demo-simple-select-label">
+                              Jog
+                            </InputLabel>
+                            <Select
+                              labelId="demo-simple-select-label"
+                              id="demo-simple-select"
+                              name="role"
+                              onChange={(e) => {
+                                setFormData({
+                                  ...formData,
+                                  [e.target.name]: e.target.value,
+                                });
+                              }}
+                            >
+                              <MenuItem value={2}>Diák</MenuItem>
+                              <MenuItem value={3}>Zsűri</MenuItem>
+                            </Select>
+                          </FormControl>
+                        </form>
+                      </DialogContent>
+                      <DialogActions>
+                        <Button onClick={handleClose} color="primary">
+                          Bezárás
+                        </Button>
+                        <Button
+                          type="submit"
+                          sx={{
+                            color: "white",
+                            backgroundColor: "#06d48f",
+                            ":hover": { bgcolor: "#06f48f" },
+                          }}
+                        >
+                          Mentés
+                        </Button>
+                      </DialogActions>
+                    </Dialog>
+
+                    {/* Update Teacher  */}
+
+                    <Dialog open={openteacher} onClose={handleClose}>
+                      <DialogTitle>Felhasználó Szerkesztése</DialogTitle>
+                      <DialogContent>
+                        <form
+                          sx={{ width: "100%", marginTop: 20 }}
+                          onSubmit={handleSubmit}
+                        >
+                          <TextField
+                            variant="outlined"
+                            margin="normal"
+                            required
+                            fullWidth
+                            id="name"
+                            label="Név"
+                            name="name"
+                            defaultValue={formData.name}
                             onChange={(e) => {
                               setFormData({
                                 ...formData,
@@ -298,13 +352,46 @@ function Userlist() {
                             }}
                           />
                           <TextField
+                            variant="outlined"
                             margin="normal"
                             required
                             fullWidth
-                            name="role"
-                            label="Jog:"
-                            id="role"
-                            defaultValue={formData.role}
+                            id="email"
+                            label="E-mail:"
+                            name="email"
+                            defaultValue={formData.email}
+                            onChange={(e) => {
+                              setFormData({
+                                ...formData,
+                                [e.target.name]: e.target.value,
+                              });
+                            }}
+                          />
+                          <TextField
+                            variant="outlined"
+                            margin="normal"
+                            required
+                            fullWidth
+                            id="employment"
+                            label="Munkahely:"
+                            name="employment"
+                            defaultValue={formData.employment}
+                            onChange={(e) => {
+                              setFormData({
+                                ...formData,
+                                [e.target.name]: e.target.value,
+                              });
+                            }}
+                          />
+                          <TextField
+                            variant="outlined"
+                            margin="normal"
+                            required
+                            fullWidth
+                            id="job_title"
+                            label="Beosztás:"
+                            name="job_title"
+                            defaultValue={formData.job_title}
                             onChange={(e) => {
                               setFormData({
                                 ...formData,

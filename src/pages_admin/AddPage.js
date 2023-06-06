@@ -1,10 +1,11 @@
 import React, { useEffect } from "react";
-import Header from "../components_admin/Header";
+import LayoutAdmin from "./LayoutAdmin";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { GetMe } from "../features/AuthSlice";
+import AddPageContent from "../components_admin/AddPageContent";
 
-function Dashboard() {
+function AddPage() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { isError, user } = useSelector((state) => state.auth);
@@ -22,10 +23,10 @@ function Dashboard() {
     }
   }, [isError, user, navigate]);
   return (
-    <div>
-      <Header />;
-    </div>
+    <LayoutAdmin>
+      <AddPageContent />
+    </LayoutAdmin>
   );
 }
 
-export default Dashboard;
+export default AddPage;

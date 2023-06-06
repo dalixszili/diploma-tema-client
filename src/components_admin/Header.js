@@ -1,43 +1,3 @@
-// const Header = () => {
-//   // const [value, setValue] = React.useState(0);
-
-//   // const handleChange = (event, newValue) => {
-//   //   setValue(newValue);
-//   // };
-//   return (
-//     <React.Fragment>
-//       <AppBar sx={{ background: "#06d48f" }}>
-//         <Toolbar>
-//           <Typography>TDK ADMIN</Typography>
-//           {/* <Tabs
-//             value={value}
-//             onChange={handleChange}
-//             sx={{ marginLeft: "auto" }}
-//           >
-//             <Tab label="Áttekintés" />
-//             <Tab
-//               icon={<PeopleIcon />}
-//               iconPosition="start"
-//               label="Felhasználok"
-//             />
-//           </Tabs> */}
-//           <Button sx={{ marginLeft: "auto" }} color="inherit">
-//             <Link to="/admin">Áttekintés</Link>
-//           </Button>
-//           <Button sx={{ marginLeft: "auto" }} color="inherit">
-//             <Link to="/admin/users">Felhasználók</Link>
-//           </Button>
-//           <Button sx={{ marginLeft: "auto" }} color="inherit">
-//             <Link to="/admin/logout">Kijelentkezés</Link>
-//           </Button>
-//         </Toolbar>
-//       </AppBar>
-//     </React.Fragment>
-//   );
-// };
-
-// export default Header;
-
 import * as React from "react";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
@@ -51,13 +11,14 @@ import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import Tooltip from "@mui/material/Tooltip";
 import MenuItem from "@mui/material/MenuItem";
-import { Link, useNavigate } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
-import { LoginUser, reset } from "../features/AuthSlice";
+import { Link } from "react-router-dom";
 
 const pages = [
   { menu: "Áttekintés", page: "" },
+  { menu: "Menüpontok", page: "menus" },
+  { menu: "Oldalak", page: "pages" },
   { menu: "Felhasználók", page: "users" },
+  { menu: "Beállítások", page: "settings" },
 ];
 const settings = [
   { menu: "Személyes Adatok", page: "account" },
@@ -67,11 +28,6 @@ function Header() {
   const [anchorElNav, setAnchorElNav] = React.useState(null);
   const [anchorElUser, setAnchorElUser] = React.useState(null);
   const baseurl = "/admin";
-
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
-
-  const { user } = useSelector((state) => state.auth);
 
   const handleOpenNavMenu = (event) => {
     setAnchorElNav(event.currentTarget);
@@ -143,8 +99,8 @@ function Header() {
                 display: { xs: "block", md: "none" },
               }}
             >
-              {pages.map((page) => (
-                <MenuItem key={page} onClick={handleCloseNavMenu}>
+              {pages.map((page, index) => (
+                <MenuItem key={index} onClick={handleCloseNavMenu}>
                   <Typography textAlign="center">
                     <Link to={`${baseurl}/${page.page}`}>{page.menu}</Link>
                   </Typography>
@@ -173,18 +129,21 @@ function Header() {
           </Typography>
 
           <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}>
-            {pages.map((page) => (
+            {pages.map((page, index) => (
               <Button
-                key={page}
-                onClick={handleCloseNavMenu}
+                key={index}
+                component={Link}
+                to={`${baseurl}/${page.page}`}
+                // onClick={handleCloseNavMenu}
                 sx={{ my: 2, color: "white", display: "block" }}
               >
-                <Link
+                {/* <Link
                   style={{ textDecoration: "none", color: "inherit" }}
                   to={`${baseurl}/${page.page}`}
                 >
                   {page.menu}
-                </Link>
+                </Link> */}
+                {page.menu}
               </Button>
             ))}
           </Box>
@@ -211,8 +170,8 @@ function Header() {
               open={Boolean(anchorElUser)}
               onClose={handleCloseUserMenu}
             >
-              {settings.map((setting) => (
-                <MenuItem key={setting} onClick={handleCloseUserMenu}>
+              {settings.map((setting, index) => (
+                <MenuItem key={index} onClick={handleCloseUserMenu}>
                   <Typography
                     textAlign="center"
                     // onClick={handleUserMenuClick}

@@ -1,11 +1,11 @@
 import React, { useEffect } from "react";
-import Header from "../components_admin/Header";
-import Userlist from "../components_admin/Userlist";
+import LayoutAdmin from "./LayoutAdmin";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { GetMe } from "../features/AuthSlice";
+import Menulist from "../components_admin/Menulist";
 
-function Users() {
+function Menus() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { isError, user } = useSelector((state) => state.auth);
@@ -23,11 +23,10 @@ function Users() {
     }
   }, [isError, user, navigate]);
   return (
-    <div>
-      <Header />
-      <Userlist />
-    </div>
+    <LayoutAdmin>
+      <Menulist />
+    </LayoutAdmin>
   );
 }
 
-export default Users;
+export default Menus;
