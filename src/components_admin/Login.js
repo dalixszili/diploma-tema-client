@@ -14,13 +14,6 @@ function Login() {
     (state) => state.auth
   );
 
-  useEffect(() => {
-    if (user && isSucces) {
-      navigate("/admin");
-    }
-    dispatch(reset());
-  }, [user, isSucces, dispatch, navigate]);
-
   const handleEmailChange = (event) => {
     setEmail(event.target.value);
   };
@@ -33,6 +26,13 @@ function Login() {
     event.preventDefault();
     dispatch(LoginUser({ email, password }));
   };
+
+  useEffect(() => {
+    if (user && user.role === 1) {
+      navigate("/admin");
+    }
+    dispatch(reset());
+  }, [user, isSucces, dispatch, navigate]);
 
   return (
     <Paper

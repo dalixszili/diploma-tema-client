@@ -22,6 +22,15 @@ import React, { useEffect, useState } from "react";
 import { Add as AddIcon } from "@mui/icons-material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import ModeEditIcon from "@mui/icons-material/ModeEdit";
+import TableHeadRow, {
+  getComparator,
+  sortedRowData,
+} from "../../helper/TableHeadRow";
+
+const headerCells = [
+  { name: "curr_year", label: "Év" },
+  { name: "website_title", label: "Weblap címe" },
+];
 
 function General() {
   // Változók inicializálása
@@ -31,12 +40,15 @@ function General() {
   const [openUpdateDialog, setopenUpdateDialog] = useState(false);
   const [openInsertDialog, setopenInsertDialog] = useState(false);
   const [editId, setEditId] = useState(null);
+  const [order, setOrder] = useState("desc");
+  const [orderBy, setOrderBy] = useState("curr_year");
 
   const [formData, setFormData] = useState({
     website_title: "",
     registration_date: new Date().toISOString().slice(0, 16),
     abstract_date: new Date().toISOString().slice(0, 16),
     project_date: new Date().toISOString().slice(0, 16),
+    register_project_date: new Date().toISOString().slice(0, 16),
     curr_year: currentYear,
   });
   const [formErrors, setFormErrors] = useState({
@@ -48,7 +60,9 @@ function General() {
 
   // használt függvények deklarálása
   const fetchData = async () => {
-    const response = await axios.get("http://localhost:5000/settings");
+    const response = await axios.get(
+      `${process.env.REACT_APP_BACKEND_BASE_URL}/settings`
+    );
     const responseData = response.data;
     setData(responseData);
   };
@@ -59,13 +73,16 @@ function General() {
       registration_date: new Date().toISOString().slice(0, 16),
       abstract_date: new Date().toISOString().slice(0, 16),
       project_date: new Date().toISOString().slice(0, 16),
+      register_project_date: new Date().toISOString().slice(0, 16),
       curr_year: currentYear,
     });
     setopenInsertDialog(true);
   };
 
   const editData = async (id) => {
-    const response = await axios.get(`http://localhost:5000/settings/${id}`);
+    const response = await axios.get(
+      `${process.env.REACT_APP_BACKEND_BASE_URL}/settings/${id}`
+    );
     setFormData(response.data);
     await setEditId(id);
     setopenUpdateDialog(true);
@@ -74,7 +91,7 @@ function General() {
   const handleRadioChange = async (id, isactive) => {
     if (isactive === 0) {
       const response = await axios.patch(
-        `http://localhost:5000/setactivesettings/${id}`
+        `${process.env.REACT_APP_BACKEND_BASE_URL}/setactivesettings/${id}`
       );
       const { msg } = response.data;
       alert(msg);
@@ -111,7 +128,7 @@ function General() {
 
     if (Object.keys(errors).length === 0) {
       const response = await axios.patch(
-        `http://localhost:5000/updatesettings/${editId}`,
+        `${process.env.REACT_APP_BACKEND_BASE_URL}/updatesettings/${editId}`,
         formData
       );
       const { msg } = response.data;
@@ -141,7 +158,7 @@ function General() {
 
     if (Object.keys(errors).length === 0) {
       const response = await axios.post(
-        "http://localhost:5000/newsettings",
+        `${process.env.REACT_APP_BACKEND_BASE_URL}/newsettings`,
         formData
       );
       const { msg } = response.data;
@@ -153,7 +170,7 @@ function General() {
 
   const deleteData = async (id) => {
     const response = await axios.patch(
-      `http://localhost:5000/deletesettings/${id}`
+      `${process.env.REACT_APP_BACKEND_BASE_URL}/deletesettings/${id}`
     );
     const { msg } = response.data;
     alert(msg);
@@ -165,6 +182,7 @@ function General() {
       registration_date: new Date().toISOString().slice(0, 16),
       abstract_date: new Date().toISOString().slice(0, 16),
       project_date: new Date().toISOString().slice(0, 16),
+      register_project_date: new Date().toISOString().slice(0, 16),
       curr_year: currentYear,
     });
     setFormErrors({
@@ -284,6 +302,24 @@ function General() {
                 }}
               />
               <TextField
+                variant="outlined"
+                margin="normal"
+                type="datetime-local"
+                required
+                fullWidth
+                id="register_project_date"
+                label="Projekt feltöltés dátuma"
+                InputLabelProps={{ shrink: true }}
+                name="register_project_date"
+                value={formData.register_project_date}
+                onChange={(e) => {
+                  setFormData({
+                    ...formData,
+                    [e.target.name]: e.target.value,
+                  });
+                }}
+              />
+              <TextField
                 margin="normal"
                 required
                 fullWidth
@@ -327,7 +363,7 @@ function General() {
 
         {/* Data Table  */}
 
-        <Grid item>
+        <Grid item marginBottom={3}>
           <TableContainer component={Paper}>
             <Table>
               <TableHead>
@@ -340,198 +376,228 @@ function General() {
                     },
                   }}
                 >
-                  <TableCell>Weblap címe</TableCell>
+                  {/* <TableCell>Weblap címe</TableCell> */}
+                  <TableHeadRow
+                    data={headerCells}
+                    order={order}
+                    setOrder={setOrder}
+                    orderBy={orderBy}
+                    setOrderBy={setOrderBy}
+                  />
                   <TableCell>Regisztráció dátum</TableCell>
                   <TableCell>Absztrakt dátum</TableCell>
                   <TableCell>Projekt dátum</TableCell>
-                  <TableCell>Év</TableCell>
+                  <TableCell>Projekt feltöltési dátum</TableCell>
+                  {/* <TableCell>Év</TableCell> */}
                   <TableCell>Aktiv</TableCell>
                   <TableCell align="center">Eszközök</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
-                {data.map((item, index) => (
-                  <TableRow
-                    key={index}
-                    sx={{
-                      ":hover": { bgcolor: "#edfff2" },
-                    }}
-                  >
-                    <TableCell>{item.website_title}</TableCell>
+                {sortedRowData(data, getComparator(order, orderBy)).map(
+                  (item, index) => (
+                    <TableRow
+                      key={index}
+                      sx={{
+                        ":hover": { bgcolor: "#edfff2" },
+                      }}
+                    >
+                      <TableCell>{item.curr_year}</TableCell>
 
-                    <TableCell>{item.registration_date}</TableCell>
+                      <TableCell>{item.website_title}</TableCell>
 
-                    <TableCell>{item.abstract_date}</TableCell>
+                      <TableCell>{item.registration_date}</TableCell>
 
-                    <TableCell>{item.project_date}</TableCell>
+                      <TableCell>{item.abstract_date}</TableCell>
 
-                    <TableCell>{item.curr_year}</TableCell>
+                      <TableCell>{item.project_date}</TableCell>
 
-                    <TableCell>
-                      <Radio
-                        checked={!!item.is_active}
-                        onChange={() =>
-                          handleRadioChange(item.id, item.is_active)
-                        }
-                        name="radio-button"
-                        color="primary"
-                      />
-                    </TableCell>
+                      <TableCell>{item.register_project_date}</TableCell>
 
-                    <TableCell align="right">
-                      <Button
-                        variant="contained"
-                        startIcon={<ModeEditIcon />}
-                        sx={{
-                          backgroundColor: "#06d48f",
-                          ":hover": { bgcolor: "#06f48f" },
-                        }}
-                        onClick={() => editData(item.id)}
-                      >
-                        Szerkesztés
-                      </Button>
+                      <TableCell>
+                        <Radio
+                          checked={!!item.is_active}
+                          onChange={() =>
+                            handleRadioChange(item.id, item.is_active)
+                          }
+                          name="radio-button"
+                          color="primary"
+                        />
+                      </TableCell>
 
-                      {/* Update Settings  */}
-                      <Dialog open={openUpdateDialog} onClose={handleClose}>
-                        <DialogTitle>Beállítások Szerkesztése</DialogTitle>
-                        <form
-                          sx={{ width: "100%", marginTop: 20 }}
-                          onSubmit={handleSubmit}
+                      <TableCell align="right">
+                        <Button
+                          variant="contained"
+                          startIcon={<ModeEditIcon />}
+                          sx={{
+                            backgroundColor: "#06d48f",
+                            ":hover": { bgcolor: "#06f48f" },
+                          }}
+                          onClick={() => editData(item.id)}
                         >
-                          <DialogContent>
-                            <TextField
-                              variant="outlined"
-                              margin="normal"
-                              required
-                              fullWidth
-                              placeholder="Weblap címe"
-                              id="website_title"
-                              label="Weblap címe"
-                              name="website_title"
-                              error={!!formErrors.website_title}
-                              helperText={formErrors.website_title}
-                              defaultValue={formData.website_title}
-                              onChange={(e) => {
-                                setFormData({
-                                  ...formData,
-                                  [e.target.name]: e.target.value,
-                                });
-                              }}
-                            />
+                          Szerkesztés
+                        </Button>
 
-                            <TextField
-                              variant="outlined"
-                              margin="normal"
-                              type="datetime-local"
-                              required
-                              fullWidth
-                              id="registration_date"
-                              label="Regisztráció dátuma"
-                              InputLabelProps={{ shrink: true }}
-                              name="registration_date"
-                              value={formData.registration_date}
-                              onChange={(e) => {
-                                setFormData({
-                                  ...formData,
-                                  [e.target.name]: e.target.value,
-                                });
-                              }}
-                            />
-                            <TextField
-                              variant="outlined"
-                              margin="normal"
-                              type="datetime-local"
-                              required
-                              fullWidth
-                              id="abstract_date"
-                              label="Absztrakt dátuma"
-                              InputLabelProps={{ shrink: true }}
-                              name="abstract_date"
-                              value={formData.abstract_date}
-                              onChange={(e) => {
-                                setFormData({
-                                  ...formData,
-                                  [e.target.name]: e.target.value,
-                                });
-                              }}
-                            />
-                            <TextField
-                              variant="outlined"
-                              margin="normal"
-                              type="datetime-local"
-                              required
-                              fullWidth
-                              id="project_date"
-                              label="Projekt dátuma"
-                              InputLabelProps={{ shrink: true }}
-                              name="project_date"
-                              value={formData.project_date}
-                              onChange={(e) => {
-                                setFormData({
-                                  ...formData,
-                                  [e.target.name]: e.target.value,
-                                });
-                              }}
-                            />
-                            <TextField
-                              margin="normal"
-                              required
-                              fullWidth
-                              name="curr_year"
-                              label="Év "
-                              type="number"
-                              error={!!formErrors.curr_year}
-                              helperText={formErrors.curr_year}
-                              InputProps={{
-                                inputProps: { min: currentYear, max: 2040 },
-                              }}
-                              id="curr_year"
-                              defaultValue={formData.curr_year}
-                              onChange={(e) => {
-                                if (
-                                  e.target.value > currentYear &&
-                                  e.target.value < 2040
-                                ) {
+                        {/* Update Settings  */}
+                        <Dialog open={openUpdateDialog} onClose={handleClose}>
+                          <DialogTitle>Beállítások Szerkesztése</DialogTitle>
+                          <form
+                            sx={{ width: "100%", marginTop: 20 }}
+                            onSubmit={handleSubmit}
+                          >
+                            <DialogContent>
+                              <TextField
+                                variant="outlined"
+                                margin="normal"
+                                required
+                                fullWidth
+                                placeholder="Weblap címe"
+                                id="website_title"
+                                label="Weblap címe"
+                                name="website_title"
+                                error={!!formErrors.website_title}
+                                helperText={formErrors.website_title}
+                                defaultValue={formData.website_title}
+                                onChange={(e) => {
                                   setFormData({
                                     ...formData,
                                     [e.target.name]: e.target.value,
                                   });
-                                }
-                              }}
-                            />
-                          </DialogContent>
-                          <DialogActions>
-                            <Button onClick={handleClose} color="primary">
-                              Bezárás
-                            </Button>
-                            <Button
-                              type="submit"
-                              sx={{
-                                color: "white",
-                                backgroundColor: "#06d48f",
-                                ":hover": { bgcolor: "#06f48f" },
-                              }}
-                            >
-                              Mentés
-                            </Button>
-                          </DialogActions>
-                        </form>
-                      </Dialog>
+                                }}
+                              />
 
-                      {/* --- End Update Settings --- */}
+                              <TextField
+                                variant="outlined"
+                                margin="normal"
+                                type="datetime-local"
+                                required
+                                fullWidth
+                                id="registration_date"
+                                label="Regisztráció dátuma"
+                                InputLabelProps={{ shrink: true }}
+                                name="registration_date"
+                                value={formData.registration_date}
+                                onChange={(e) => {
+                                  setFormData({
+                                    ...formData,
+                                    [e.target.name]: e.target.value,
+                                  });
+                                }}
+                              />
+                              <TextField
+                                variant="outlined"
+                                margin="normal"
+                                type="datetime-local"
+                                required
+                                fullWidth
+                                id="abstract_date"
+                                label="Absztrakt dátuma"
+                                InputLabelProps={{ shrink: true }}
+                                name="abstract_date"
+                                value={formData.abstract_date}
+                                onChange={(e) => {
+                                  setFormData({
+                                    ...formData,
+                                    [e.target.name]: e.target.value,
+                                  });
+                                }}
+                              />
+                              <TextField
+                                variant="outlined"
+                                margin="normal"
+                                type="datetime-local"
+                                required
+                                fullWidth
+                                id="project_date"
+                                label="Projekt dátuma"
+                                InputLabelProps={{ shrink: true }}
+                                name="project_date"
+                                value={formData.project_date}
+                                onChange={(e) => {
+                                  setFormData({
+                                    ...formData,
+                                    [e.target.name]: e.target.value,
+                                  });
+                                }}
+                              />
+                              <TextField
+                                variant="outlined"
+                                margin="normal"
+                                type="datetime-local"
+                                required
+                                fullWidth
+                                id="register_project_date"
+                                label="Projekt feltötlési dátuma"
+                                InputLabelProps={{ shrink: true }}
+                                name="register_project_date"
+                                value={formData.register_project_date}
+                                onChange={(e) => {
+                                  setFormData({
+                                    ...formData,
+                                    [e.target.name]: e.target.value,
+                                  });
+                                }}
+                              />
+                              <TextField
+                                margin="normal"
+                                required
+                                fullWidth
+                                name="curr_year"
+                                label="Év "
+                                type="number"
+                                error={!!formErrors.curr_year}
+                                helperText={formErrors.curr_year}
+                                InputProps={{
+                                  inputProps: { min: currentYear, max: 2040 },
+                                }}
+                                id="curr_year"
+                                defaultValue={formData.curr_year}
+                                onChange={(e) => {
+                                  if (
+                                    e.target.value > currentYear &&
+                                    e.target.value < 2040
+                                  ) {
+                                    setFormData({
+                                      ...formData,
+                                      [e.target.name]: e.target.value,
+                                    });
+                                  }
+                                }}
+                              />
+                            </DialogContent>
+                            <DialogActions>
+                              <Button onClick={handleClose} color="primary">
+                                Bezárás
+                              </Button>
+                              <Button
+                                type="submit"
+                                sx={{
+                                  color: "white",
+                                  backgroundColor: "#06d48f",
+                                  ":hover": { bgcolor: "#06f48f" },
+                                }}
+                              >
+                                Mentés
+                              </Button>
+                            </DialogActions>
+                          </form>
+                        </Dialog>
 
-                      {item.is_active === 0 && (
-                        <Button
-                          variant="contained"
-                          color="error"
-                          onClick={() => deleteData(item.id)}
-                        >
-                          <DeleteIcon />
-                        </Button>
-                      )}
-                    </TableCell>
-                  </TableRow>
-                ))}
+                        {/* --- End Update Settings --- */}
+
+                        {item.is_active === 0 && (
+                          <Button
+                            variant="contained"
+                            color="error"
+                            onClick={() => deleteData(item.id)}
+                          >
+                            <DeleteIcon />
+                          </Button>
+                        )}
+                      </TableCell>
+                    </TableRow>
+                  )
+                )}
               </TableBody>
             </Table>
           </TableContainer>

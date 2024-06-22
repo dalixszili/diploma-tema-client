@@ -22,12 +22,20 @@ import {
   TextField,
   Tooltip,
 } from "@mui/material";
+import TableHeadRow, {
+  getComparator,
+  sortedRowData,
+} from "../../helper/TableHeadRow";
+
+const headerCells = [{ name: "name", label: "Szakosztály Neve" }];
 
 function Categories() {
   // Változók inicializálása
   const [data, setData] = useState([{}]);
   const [openUpdateDialog, setopenUpdateDialog] = useState(false);
   const [openInsertDialog, setopenInsertDialog] = useState(false);
+  const [order, setOrder] = useState("asc");
+  const [orderBy, setOrderBy] = useState("name");
   const [formData, setFormData] = useState({
     name: "",
   });
@@ -39,7 +47,9 @@ function Categories() {
 
   // használt függvények deklarálása
   const fetchData = async () => {
-    const response = await axios.get("http://localhost:5000/categories");
+    const response = await axios.get(
+      `${process.env.REACT_APP_BACKEND_BASE_URL}/categories`
+    );
     const responseData = response.data;
 
     setData(responseData);
@@ -47,7 +57,7 @@ function Categories() {
 
   const deleteData = async (id) => {
     const response = await axios.patch(
-      `http://localhost:5000/deletecategory/${id}`
+      `${process.env.REACT_APP_BACKEND_BASE_URL}/deletecategory/${id}`
     );
     const { msg } = response.data;
     alert(msg);
@@ -55,7 +65,9 @@ function Categories() {
   };
 
   const editData = async (id) => {
-    const response = await axios.get(`http://localhost:5000/categories/${id}`);
+    const response = await axios.get(
+      `${process.env.REACT_APP_BACKEND_BASE_URL}/categories/${id}`
+    );
     setFormData(response.data);
     setEditId(id);
     setopenUpdateDialog(true);
@@ -77,7 +89,7 @@ function Categories() {
 
     if (Object.keys(errors).length === 0) {
       const response = await axios.patch(
-        `http://localhost:5000/updatecategory/${editId}`,
+        `${process.env.REACT_APP_BACKEND_BASE_URL}/updatecategory/${editId}`,
         formData
       );
       const { msg } = response.data;
@@ -112,7 +124,7 @@ function Categories() {
 
     if (Object.keys(errors).length === 0) {
       const response = await axios.post(
-        "http://localhost:5000/newcategory",
+        `${process.env.REACT_APP_BACKEND_BASE_URL}/newcategory`,
         formData
       );
       const { msg } = response.data;
@@ -165,7 +177,12 @@ function Categories() {
 
         {/* Insert Category  */}
 
-        <Dialog open={openInsertDialog} onClose={handleClose}>
+        <Dialog
+          fullWidth
+          maxWidth="sm"
+          open={openInsertDialog}
+          onClose={handleClose}
+        >
           <DialogTitle>Szakosztály hozzáadása</DialogTitle>
           <form
             sx={{ width: "100%", marginTop: 20 }}
@@ -215,7 +232,7 @@ function Categories() {
 
         {/* Data Table  */}
 
-        <TableContainer component={Paper}>
+        <TableContainer component={Paper} sx={{ marginBottom: 3 }}>
           <Table>
             <TableHead>
               <TableRow
@@ -227,98 +244,121 @@ function Categories() {
                   },
                 }}
               >
-                <TableCell>Szakosztály Neve</TableCell>
+                {/* <TableCell>
+                  <TableSortLabel
+                    active={orderBy === "name"}
+                    direction={orderBy === "name" ? order : "asc"}
+                    onClick={() => handleRequestSort("name")}
+                  >
+                    Szakosztály Neve
+                  </TableSortLabel>
+                </TableCell> */}
+
+                <TableHeadRow
+                  data={headerCells}
+                  order={order}
+                  setOrder={setOrder}
+                  orderBy={orderBy}
+                  setOrderBy={setOrderBy}
+                />
                 <TableCell align="center" style={{ width: "30%" }}>
                   Eszközök
                 </TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {data.map((item, index) => (
-                <TableRow
-                  key={index}
-                  sx={{
-                    ":hover": { bgcolor: "#edfff2" },
-                  }}
-                >
-                  <TableCell sx={{ fontSize: "1.25rem" }}>
-                    {item.name}
-                  </TableCell>
+              {sortedRowData(data, getComparator(order, orderBy)).map(
+                (item, index) => (
+                  <TableRow
+                    key={index}
+                    sx={{
+                      ":hover": { bgcolor: "#edfff2" },
+                    }}
+                  >
+                    <TableCell sx={{ fontSize: "1.25rem" }}>
+                      {item.name}
+                    </TableCell>
 
-                  <TableCell align="right">
-                    <Button
-                      variant="contained"
-                      startIcon={<ModeEditIcon />}
-                      sx={{
-                        // width: "20vh",
-                        // height: "3vh",
-                        backgroundColor: "#06d48f",
-                        ":hover": { bgcolor: "#06f48f" },
-                      }}
-                      onClick={() => editData(item.id)}
-                    >
-                      Szerkesztés
-                    </Button>
-
-                    {/* Update Category  */}
-
-                    <Dialog open={openUpdateDialog} onClose={handleClose}>
-                      <DialogTitle>Szakosztály Szerkesztése</DialogTitle>
-                      <form
-                        sx={{ width: "100%", marginTop: 20 }}
-                        onSubmit={handleSubmit}
+                    <TableCell align="right">
+                      <Button
+                        variant="contained"
+                        startIcon={<ModeEditIcon />}
+                        sx={{
+                          // width: "20vh",
+                          // height: "3vh",
+                          backgroundColor: "#06d48f",
+                          ":hover": { bgcolor: "#06f48f" },
+                        }}
+                        onClick={() => editData(item.id)}
                       >
-                        <DialogContent>
-                          <TextField
-                            variant="outlined"
-                            margin="normal"
-                            required
-                            fullWidth
-                            id="name"
-                            label="Név"
-                            name="name"
-                            error={!!formErrors.name}
-                            helperText={formErrors.name}
-                            defaultValue={formData.name}
-                            onChange={(e) => {
-                              setFormData({
-                                ...formData,
-                                [e.target.name]: e.target.value,
-                              });
-                            }}
-                          />
-                        </DialogContent>
-                        <DialogActions>
-                          <Button onClick={handleClose} color="primary">
-                            Bezárás
-                          </Button>
-                          <Button
-                            type="submit"
-                            sx={{
-                              color: "white",
-                              backgroundColor: "#06d48f",
-                              ":hover": { bgcolor: "#06f48f" },
-                            }}
-                          >
-                            Mentés
-                          </Button>
-                        </DialogActions>
-                      </form>
-                    </Dialog>
+                        Szerkesztés
+                      </Button>
 
-                    {/* --- End Update Category --- */}
+                      {/* Update Category  */}
 
-                    <Button
-                      variant="contained"
-                      color="error"
-                      startIcon={<DeleteIcon />}
-                      onClick={() => deleteData(item.id)}
-                    >
-                      Törlés
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
+                      <Dialog
+                        fullWidth
+                        maxWidth="sm"
+                        open={openUpdateDialog}
+                        onClose={handleClose}
+                      >
+                        <DialogTitle>Szakosztály Szerkesztése</DialogTitle>
+                        <form
+                          sx={{ width: "100%", marginTop: 20 }}
+                          onSubmit={handleSubmit}
+                        >
+                          <DialogContent>
+                            <TextField
+                              variant="outlined"
+                              margin="normal"
+                              required
+                              fullWidth
+                              id="name"
+                              label="Név"
+                              name="name"
+                              error={!!formErrors.name}
+                              helperText={formErrors.name}
+                              defaultValue={formData.name}
+                              onChange={(e) => {
+                                setFormData({
+                                  ...formData,
+                                  [e.target.name]: e.target.value,
+                                });
+                              }}
+                            />
+                          </DialogContent>
+                          <DialogActions>
+                            <Button onClick={handleClose} color="primary">
+                              Bezárás
+                            </Button>
+                            <Button
+                              type="submit"
+                              sx={{
+                                color: "white",
+                                backgroundColor: "#06d48f",
+                                ":hover": { bgcolor: "#06f48f" },
+                              }}
+                            >
+                              Mentés
+                            </Button>
+                          </DialogActions>
+                        </form>
+                      </Dialog>
+
+                      {/* --- End Update Category --- */}
+
+                      <Button
+                        variant="contained"
+                        color="error"
+                        startIcon={<DeleteIcon />}
+                        onClick={() => deleteData(item.id)}
+                      >
+                        Törlés
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                )
+              )}
             </TableBody>
           </Table>
         </TableContainer>

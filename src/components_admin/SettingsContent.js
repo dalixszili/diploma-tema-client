@@ -1,4 +1,4 @@
-import { Tab, Tabs } from "@mui/material";
+import { Box, Tab, Tabs, Typography } from "@mui/material";
 import React, { useState } from "react";
 import General from "./settings_components/General";
 import Categories from "./settings_components/Categories";
@@ -12,35 +12,21 @@ function SettingsContent() {
   };
 
   return (
-    <div
-      style={{
-        marginTop: 100,
-        marginLeft: "auto",
-        marginRight: "auto",
-        width: "80%",
-      }}
-    >
-      <h1>Beállítások</h1>
-      <h3 style={{ marginBottom: "3vh" }}>
+    <Box>
+      <Typography variant={"body"} component={"h1"} paddingTop={3}>
+        Beállítások
+      </Typography>
+      <Typography variant={"body"} component={"h3"} paddingTop={3}>
         Időpontok, szakosztályok és egyéb beállítások.
-      </h3>
+      </Typography>
 
       <Tabs
         value={selectedTab}
         onChange={handleTabChange}
-        // indicatorColor="#06d48f"
-        // textColor="#111111"
         centered
-        // indicatorColor="#06d48f"
-        style={
-          {
-            // background: "#111111",
-          }
-        }
         TabIndicatorProps={{
           style: {
             backgroundColor: "#06d48f",
-            // textColor: "#06d48f",
           },
         }}
       >
@@ -73,7 +59,7 @@ function SettingsContent() {
           <Sponsors />
         </div>
       )}
-    </div>
+    </Box>
   );
 }
 

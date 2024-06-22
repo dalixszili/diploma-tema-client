@@ -7,7 +7,6 @@ import { useNavigate } from "react-router-dom";
 
 function AddPageContent() {
   // Változók inicializálása
-
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
@@ -34,7 +33,7 @@ function AddPageContent() {
     }));
   };
   const handleCancel = async (event) => {
-    // event.preventDefault();
+    event.preventDefault();
     setFormData({
       title: "",
       content: "",
@@ -102,7 +101,7 @@ function AddPageContent() {
 
     if (Object.keys(errors).length === 0) {
       const response = await axios.post(
-        "http://localhost:5000/newpage",
+        `${process.env.REACT_APP_BACKEND_BASE_URL}/newpage`,
         formData
       );
       const { msg } = response.data;
@@ -112,21 +111,14 @@ function AddPageContent() {
   };
 
   return (
-    <div
-      style={{
-        marginTop: 100,
-        marginLeft: "auto",
-        marginRight: "auto",
-        width: "80%",
-      }}
-    >
+    <>
       <Paper
         sx={{
           margin: "0 auto",
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
-          marginTop: 15,
+          marginTop: 3,
         }}
       >
         <Typography fontWeight={"bold"} variant="h4">
@@ -217,13 +209,20 @@ function AddPageContent() {
           />
 
           {formErrors.content ? (
-            <p style={{ color: "red" }}>{formErrors.content}</p>
+            <Typography
+              variant="body"
+              component={"p"}
+              style={{ color: "red", marginBottom: "1%" }}
+            >
+              {formErrors.content}
+            </Typography>
           ) : (
-            <p>
+            <Typography variant="body" marginBottom={"1%"} component={"p"}>
               <b>Leírás</b>
-            </p>
+            </Typography>
           )}
           <SunEditor
+            height="100%"
             setOptions={{
               buttonList: [
                 ["undo", "redo"],
@@ -278,7 +277,7 @@ function AddPageContent() {
           </Box>
         </form>
       </Paper>
-    </div>
+    </>
   );
 }
 

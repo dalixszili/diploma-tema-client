@@ -98,7 +98,7 @@ function UpdatePageContent() {
 
     if (Object.keys(errors).length === 0) {
       const response = await axios.patch(
-        `http://localhost:5000/updatepage/${pageId}`,
+        `${process.env.REACT_APP_BACKEND_BASE_URL}/updatepage/${pageId}`,
 
         formData
       );
@@ -117,7 +117,7 @@ function UpdatePageContent() {
     const fetchData = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:5000/page/${pageId}`
+          `${process.env.REACT_APP_BACKEND_BASE_URL}/page/${pageId}`
         );
         const responseData = response.data;
 
@@ -141,14 +141,7 @@ function UpdatePageContent() {
   }, []);
 
   return (
-    <div
-      style={{
-        marginTop: 100,
-        marginLeft: "auto",
-        marginRight: "auto",
-        width: "80%",
-      }}
-    >
+    <>
       <Paper
         style={{}}
         sx={{
@@ -156,11 +149,11 @@ function UpdatePageContent() {
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
-          marginTop: 15,
+          marginTop: 3,
         }}
       >
         <Typography fontWeight={"bold"} variant="h4">
-          Új oldal hozzáadása
+          Oldal szerkesztése
         </Typography>
         <form
           autoComplete="off"
@@ -247,14 +240,17 @@ function UpdatePageContent() {
           />
 
           {formErrors.content ? (
-            <p style={{ color: "red" }}>{formErrors.content}</p>
+            <Typography variant="body" component={"p"} style={{ color: "red" }}>
+              {formErrors.content}
+            </Typography>
           ) : (
-            <p>
+            <Typography variant="body" component={"p"}>
               <b>Leírás</b>
-            </p>
+            </Typography>
           )}
 
           <SunEditor
+            height="100%"
             setOptions={{
               buttonList: [
                 ["undo", "redo"],
@@ -310,7 +306,7 @@ function UpdatePageContent() {
           </Box>
         </form>
       </Paper>
-    </div>
+    </>
   );
 }
 

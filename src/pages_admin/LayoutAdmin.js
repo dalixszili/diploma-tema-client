@@ -1,12 +1,22 @@
 import React from "react";
 import Header from "../components_admin/Header";
+import { Box } from "@mui/material";
 
 const LayoutAdmin = ({ children }) => {
   return (
-    <React.Fragment>
+    <>
       <Header />
-      <div>{children}</div>
-    </React.Fragment>
+      <Box
+        sx={{
+          width: { xs: "95%", md: "95%", lg: "80%" },
+          marginLeft: "auto",
+          marginRight: "auto",
+          marginBottom: "3%",
+        }}
+      >
+        {children}
+      </Box>
+    </>
   );
 };
 

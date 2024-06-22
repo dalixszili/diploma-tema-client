@@ -1,10 +1,12 @@
 import {
+  Box,
   Button,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
   FormControl,
+  Grid,
   IconButton,
   InputLabel,
   MenuItem,
@@ -17,6 +19,7 @@ import {
   TableHead,
   TableRow,
   TextField,
+  Typography,
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import ModeEditIcon from "@mui/icons-material/ModeEdit";
@@ -47,18 +50,18 @@ function Menulist() {
 
   // használt függvények deklarálása
 
-  useEffect(() => {
-    fetchData();
-  }, []);
-
   const fetchData = async () => {
-    const response = await axios.get("http://localhost:5000/menuswithpages");
+    const response = await axios.get(
+      `${process.env.REACT_APP_BACKEND_BASE_URL}/menuswithpages`
+    );
     const responseData = response.data;
     setData(responseData);
   };
 
   const handleInsertClick = async () => {
-    const responsepages = await axios.get("http://localhost:5000/pages");
+    const responsepages = await axios.get(
+      `${process.env.REACT_APP_BACKEND_BASE_URL}/pages`
+    );
     const responsePagesData = responsepages.data;
     setPages(responsePagesData);
     if (responsePagesData.length > 0) {
@@ -70,7 +73,9 @@ function Menulist() {
     setopenInsertDialog(true);
   };
   const editData = async (id) => {
-    const responsepages = await axios.get("http://localhost:5000/pages");
+    const responsepages = await axios.get(
+      `${process.env.REACT_APP_BACKEND_BASE_URL}/pages`
+    );
     const responsePagesData = responsepages.data;
     setPages(responsePagesData);
     if (responsePagesData.length > 0) {
@@ -79,7 +84,9 @@ function Menulist() {
         page_id: responsePagesData[0].id,
       }));
     }
-    const response = await axios.get(`http://localhost:5000/menu/${id}`);
+    const response = await axios.get(
+      `${process.env.REACT_APP_BACKEND_BASE_URL}/menu/${id}`
+    );
     setFormData(response.data);
     setEditId(id);
     setopenUpdateDialog(true);
@@ -107,10 +114,10 @@ function Menulist() {
         errors.name = "A név legalább 3 karakterből kell álljon !";
       }
     }
-    await setFormErrors(errors);
+    setFormErrors(errors);
     if (Object.keys(errors).length === 0) {
       const response = await axios.post(
-        "http://localhost:5000/newmenu",
+        `${process.env.REACT_APP_BACKEND_BASE_URL}/newmenu`,
         formData
       );
       handleClose();
@@ -135,7 +142,7 @@ function Menulist() {
     await setFormErrors(errors);
     if (Object.keys(errors).length === 0) {
       const response = await axios.patch(
-        `http://localhost:5000/updatemenu/${editId}`,
+        `${process.env.REACT_APP_BACKEND_BASE_URL}/updatemenu/${editId}`,
         formData
       );
       const { msg } = response.data;
@@ -149,7 +156,10 @@ function Menulist() {
     const dataSend = {
       arrow: 1,
     };
-    await axios.patch(`http://localhost:5000/menus/setorder/${id}`, dataSend);
+    await axios.patch(
+      `${process.env.REACT_APP_BACKEND_BASE_URL}/menus/setorder/${id}`,
+      dataSend
+    );
     fetchData();
   };
 
@@ -157,13 +167,16 @@ function Menulist() {
     const dataSend = {
       arrow: 0,
     };
-    await axios.patch(`http://localhost:5000/menus/setorder/${id}`, dataSend);
+    await axios.patch(
+      `${process.env.REACT_APP_BACKEND_BASE_URL}/menus/setorder/${id}`,
+      dataSend
+    );
     fetchData();
   };
 
   const deleteData = async (id) => {
     const response = await axios.patch(
-      `http://localhost:5000/deletemenu/${id}`
+      `${process.env.REACT_APP_BACKEND_BASE_URL}/deletemenu/${id}`
     );
     const { msg } = response.data;
     alert(msg);
@@ -182,42 +195,42 @@ function Menulist() {
     setopenUpdateDialog(false);
     setopenInsertDialog(false);
   };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
   return (
-    <div
-      style={{
-        marginTop: 100,
-        marginLeft: "auto",
-        marginRight: "auto",
-        width: "80%",
-      }}
-    >
-      <h1>Menüpontok</h1>
-      <h3>A weboldal menüpontjainak kezelése</h3>
+    <Box>
+      <Typography variant={"body"} component={"h1"} paddingTop={3}>
+        Menüpontok
+      </Typography>
 
-      <div
-        style={{
-          position: "absolute",
-          top: "120px",
-          right: "10%",
-        }}
-      >
-        <Button
-          variant="contained"
-          startIcon={<AddIcon />}
-          style={{ textTransform: "none" }}
-          onClick={handleInsertClick}
-          sx={{
-            marginTop: 3,
-            marginBottom: 3,
-            backgroundColor: "#06d48f",
-            ":hover": { bgcolor: "#06f48f" },
-          }}
-        >
-          Új menü hozzáadása
-        </Button>
-      </div>
+      <Grid container direction="row">
+        <Grid item xs={6} alignContent={"center"}>
+          <Typography variant={"body"} component={"h2"}>
+            A weboldal menüpontjainak kezelése
+          </Typography>
+        </Grid>
+        <Grid item xs={6} textAlign="end" alignContent={"center"}>
+          <Button
+            variant="contained"
+            startIcon={<AddIcon />}
+            style={{ textTransform: "none" }}
+            onClick={handleInsertClick}
+            sx={{
+              marginTop: 3,
+              marginBottom: 3,
+              backgroundColor: "#06d48f",
+              ":hover": { bgcolor: "#06f48f" },
+            }}
+          >
+            Új menü hozzáadása
+          </Button>
+        </Grid>
+      </Grid>
 
-      {/* Insert Sponsor  */}
+      {/* Insert Menu  */}
 
       <Dialog open={openInsertDialog} onClose={handleClose}>
         <DialogTitle>Menü hozzáadása</DialogTitle>
@@ -286,7 +299,7 @@ function Menulist() {
         </form>
       </Dialog>
 
-      {/* --- End Insert Sponsor --- */}
+      {/* --- End Insert Menu --- */}
 
       <TableContainer component={Paper}>
         <Table>
@@ -426,7 +439,7 @@ function Menulist() {
           </TableBody>
         </Table>
       </TableContainer>
-    </div>
+    </Box>
   );
 }
 

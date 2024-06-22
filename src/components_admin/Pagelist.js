@@ -1,5 +1,7 @@
 import {
+  Box,
   Button,
+  Grid,
   Paper,
   Table,
   TableBody,
@@ -7,13 +9,14 @@ import {
   TableContainer,
   TableHead,
   TableRow,
+  Typography,
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import ModeEditIcon from "@mui/icons-material/ModeEdit";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
 import axios from "axios";
-import { Link } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 import TruncateText from "./Helpers/TruncateText";
 import { extractTextFromHTML } from "./Helpers/extractTextFromHTML ";
 
@@ -27,14 +30,16 @@ function Pagelist() {
 
   // használt függvények deklarálása
   const fetchData = async () => {
-    const response = await axios.get("http://localhost:5000/pages");
+    const response = await axios.get(
+      `${process.env.REACT_APP_BACKEND_BASE_URL}/pages`
+    );
     const responseData = response.data;
 
     setData(responseData);
   };
   const deleteData = async (id) => {
     const response = await axios.patch(
-      `http://localhost:5000/deletepage/${id}`
+      `${process.env.REACT_APP_BACKEND_BASE_URL}/deletepage/${id}`
     );
 
     const { msg } = response.data;
@@ -48,41 +53,35 @@ function Pagelist() {
   // Vége - függvények deklarálása
 
   return (
-    <div
-      style={{
-        marginTop: 100,
-        marginLeft: "auto",
-        marginRight: "auto",
-        width: "80%",
-      }}
-    >
-      <h1>Oldalak</h1>
+    <Box>
+      <Typography variant={"body"} component={"h1"} paddingTop={3}>
+        Oldalak
+      </Typography>
 
-      <h3>A weboldal szöveges oldalainak kezelése.</h3>
-
-      <div
-        style={{
-          position: "absolute",
-          top: "120px",
-          right: "10%",
-        }}
-      >
-        <Button
-          variant="contained"
-          component={Link}
-          to={`${baseurl}/addpage`}
-          startIcon={<AddIcon />}
-          style={{ textTransform: "none" }}
-          sx={{
-            marginTop: 3,
-            marginBottom: 3,
-            backgroundColor: "#06d48f",
-            ":hover": { bgcolor: "#06f48f" },
-          }}
-        >
-          Új oldal hozzáadása
-        </Button>
-      </div>
+      <Grid container direction="row">
+        <Grid item xs={6} alignContent={"center"}>
+          <Typography variant={"body"} component={"h2"}>
+            A weboldal szöveges oldalainak kezelése.
+          </Typography>
+        </Grid>
+        <Grid item xs={6} textAlign="end" alignContent={"center"}>
+          <Button
+            variant="contained"
+            component={Link}
+            to={`${baseurl}/addpage`}
+            startIcon={<AddIcon />}
+            style={{ textTransform: "none" }}
+            sx={{
+              marginTop: 3,
+              marginBottom: 3,
+              backgroundColor: "#06d48f",
+              ":hover": { bgcolor: "#06f48f" },
+            }}
+          >
+            Új oldal hozzáadása
+          </Button>
+        </Grid>
+      </Grid>
 
       <TableContainer component={Paper}>
         <Table>
@@ -126,7 +125,7 @@ function Pagelist() {
                   <Button
                     variant="contained"
                     startIcon={<ModeEditIcon />}
-                    component={Link}
+                    component={NavLink}
                     to={`${baseurl}/page/${item.id}/edit`}
                     sx={{
                       backgroundColor: "#06d48f",
@@ -150,7 +149,7 @@ function Pagelist() {
           </TableBody>
         </Table>
       </TableContainer>
-    </div>
+    </Box>
   );
 }
 

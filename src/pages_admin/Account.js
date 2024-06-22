@@ -1,11 +1,11 @@
 import React, { useEffect } from "react";
+import LayoutAdmin from "./LayoutAdmin";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { GetMe } from "../features/AuthSlice";
-import LayoutAdmin from "./LayoutAdmin";
-import Home from "../components_admin/Home";
+import AccountAdmin from "../components_admin/AccountAdmin";
 
-function Dashboard() {
+function Account() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { isError, user } = useSelector((state) => state.auth);
@@ -22,11 +22,7 @@ function Dashboard() {
       navigate("/admin/logout");
     }
   }, [isError, user, navigate]);
-  return (
-    <LayoutAdmin>
-      <Home />
-    </LayoutAdmin>
-  );
+  return <LayoutAdmin>{user ? <AccountAdmin user={user} /> : ""}</LayoutAdmin>;
 }
 
-export default Dashboard;
+export default Account;

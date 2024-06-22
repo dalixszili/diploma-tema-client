@@ -44,19 +44,25 @@ function Sponsors() {
 
   // használt függvények deklarálása
   const fetchData = async () => {
-    const response = await axios.get("http://localhost:5000/sponsors");
+    const response = await axios.get(
+      `${process.env.REACT_APP_BACKEND_BASE_URL}/sponsors`
+    );
     const responseData = response.data;
 
     setData(responseData);
   };
 
   const deleteData = async (id) => {
-    await axios.patch(`http://localhost:5000/deletesponsor/${id}`);
+    await axios.patch(
+      `${process.env.REACT_APP_BACKEND_BASE_URL}/deletesponsor/${id}`
+    );
     fetchData();
   };
 
   const editData = async (id) => {
-    const response = await axios.get(`http://localhost:5000/sponsors/${id}`);
+    const response = await axios.get(
+      `${process.env.REACT_APP_BACKEND_BASE_URL}/sponsors/${id}`
+    );
     setFormData(response.data);
     setEditId(id);
     setopenUpdateDialog(true);
@@ -80,7 +86,7 @@ function Sponsors() {
     if (name.trim() === "") {
       errors.name = "Név mező kötelező !";
     } else {
-      if (name.trim().length <= 3) {
+      if (name.trim().length <= 2) {
         errors.name = "A név legalább 3 karakterből kell álljon !";
       }
     }
@@ -90,14 +96,14 @@ function Sponsors() {
       // nem helyes a weboldal címe
       errors.website_url = "Adjon meg egy érvényes weboldal címet";
     }
-    await setFormErrors(errors);
+    setFormErrors(errors);
     if (Object.keys(errors).length === 0) {
       const formDataToSend = new FormData();
       formDataToSend.append("name", formData.name);
       formDataToSend.append("website_url", formData.website_url);
       formDataToSend.append("logo_file", formData.logo_file);
       await axios.post(
-        `http://localhost:5000/updatesponsor/${editId}`,
+        `${process.env.REACT_APP_BACKEND_BASE_URL}/updatesponsor/${editId}`,
         formDataToSend
       );
       fetchData();
@@ -108,7 +114,7 @@ function Sponsors() {
   const insertData = async () => {
     const { name, website_url } = formData;
     let errors = {};
-    const urlRegex = /^(https?:\/\/){2,}$/i;
+    const urlRegex = /^(https?:\/\/).{3,}?$/i;
     // Név mező validálás
     if (name.trim() === "") {
       errors.name = "Név mező kötelező !";
@@ -123,13 +129,16 @@ function Sponsors() {
       // nem helyes a weboldal címe
       errors.website_url = "Adjon meg egy érvényes weboldal címet";
     }
-    await setFormErrors(errors);
+    setFormErrors(() => errors);
     if (Object.keys(errors).length === 0) {
       const formDataToSend = new FormData();
       formDataToSend.append("name", formData.name);
       formDataToSend.append("website_url", formData.website_url);
       formDataToSend.append("logo_file", formData.logo_file);
-      await axios.post("http://localhost:5000/newsponsor", formDataToSend);
+      await axios.post(
+        `${process.env.REACT_APP_BACKEND_BASE_URL}/newsponsor`,
+        formDataToSend
+      );
       fetchData();
       handleClose();
     }
@@ -159,7 +168,7 @@ function Sponsors() {
       arrow: 1,
     };
     await axios.patch(
-      `http://localhost:5000/sponsors/setorder/${id}`,
+      `${process.env.REACT_APP_BACKEND_BASE_URL}/sponsors/setorder/${id}`,
       dataSend
     );
     fetchData();
@@ -170,7 +179,7 @@ function Sponsors() {
       arrow: 0,
     };
     await axios.patch(
-      `http://localhost:5000/sponsors/setorder/${id}`,
+      `${process.env.REACT_APP_BACKEND_BASE_URL}/sponsors/setorder/${id}`,
       dataSend
     );
     fetchData();
@@ -292,7 +301,7 @@ function Sponsors() {
 
         {/* Data Table  */}
 
-        <TableContainer component={Paper}>
+        <TableContainer component={Paper} sx={{ marginBottom: 3 }}>
           <Table>
             <TableHead>
               <TableRow
@@ -323,7 +332,7 @@ function Sponsors() {
                   <TableCell>
                     <img
                       alt="Sponsors "
-                      src={`http://localhost:5000/images/${item.logo_file}`}
+                      src={`${process.env.REACT_APP_BACKEND_BASE_URL}/images/${item.logo_file}`}
                       style={{ height: 40 }}
                     />
                   </TableCell>
@@ -394,13 +403,15 @@ function Sponsors() {
                             variant="outlined"
                             margin="normal"
                             type="file"
-                            required
+                            // required
                             fullWidth
                             label="Logó"
                             id="logo_file"
                             InputLabelProps={{ shrink: true }}
+                            // value={`${process.env.REACT_APP_BACKEND_BASE_URL}/images/${formData.logo_file}`}
                             name="logo_file"
                             onChange={(e) => {
+                              // console.log(formData)
                               setFormData({
                                 ...formData,
                                 [e.target.name]: e.target.files[0],

@@ -7,11 +7,11 @@ import Typography from "@mui/material/Typography";
 import Menu from "@mui/material/Menu";
 import MenuIcon from "@mui/icons-material/Menu";
 import Container from "@mui/material/Container";
-import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import Tooltip from "@mui/material/Tooltip";
 import MenuItem from "@mui/material/MenuItem";
-import { Link } from "react-router-dom";
+import { NavLink } from "react-router-dom";
+import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 
 const pages = [
   { menu: "Áttekintés", page: "" },
@@ -28,6 +28,8 @@ function Header() {
   const [anchorElNav, setAnchorElNav] = React.useState(null);
   const [anchorElUser, setAnchorElUser] = React.useState(null);
   const baseurl = "/admin";
+  const pathNameArray = window.location.pathname.split("/");
+  const selectedItem = pathNameArray[pathNameArray.length - 1];
 
   const handleOpenNavMenu = (event) => {
     setAnchorElNav(event.currentTarget);
@@ -44,13 +46,8 @@ function Header() {
     setAnchorElUser(null);
   };
 
-  // const handleUserMenuClick = (event) => {
-  //   if (event.currentTarget.value === "Kijelentkezés")
-  //     console.log(event.currentTarget);
-  // };
-
   return (
-    <AppBar sx={{ background: "#06d48f" }}>
+    <AppBar position="static" sx={{ background: "#06d48f" }}>
       <Container maxWidth="xl">
         <Toolbar disableGutters>
           <Typography
@@ -102,7 +99,9 @@ function Header() {
               {pages.map((page, index) => (
                 <MenuItem key={index} onClick={handleCloseNavMenu}>
                   <Typography textAlign="center">
-                    <Link to={`${baseurl}/${page.page}`}>{page.menu}</Link>
+                    <NavLink to={`${baseurl}/${page.page}`}>
+                      {page.menu}
+                    </NavLink>
                   </Typography>
                 </MenuItem>
               ))}
@@ -132,27 +131,35 @@ function Header() {
             {pages.map((page, index) => (
               <Button
                 key={index}
-                component={Link}
+                component={NavLink}
                 to={`${baseurl}/${page.page}`}
-                // onClick={handleCloseNavMenu}
-                sx={{ my: 2, color: "white", display: "block" }}
+                sx={{
+                  backgroundColor: `${
+                    selectedItem === page.page ? "#06f48f" : ""
+                  } `,
+                  my: 2,
+                  color: "white",
+                  display: "block",
+                }}
               >
-                {/* <Link
-                  style={{ textDecoration: "none", color: "inherit" }}
-                  to={`${baseurl}/${page.page}`}
-                >
-                  {page.menu}
-                </Link> */}
                 {page.menu}
               </Button>
             ))}
           </Box>
 
           <Box sx={{ flexGrow: 0 }}>
-            <Tooltip title="Open settings">
-              <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
-              </IconButton>
+            <Tooltip title="Személyes adatok">
+              <AccountCircleIcon
+                onClick={handleOpenUserMenu}
+                style={{
+                  marginRight: 0,
+                  width: "40",
+                  height: "40",
+                }}
+                sx={{
+                  ":hover": { color: "#eeeeee" },
+                }}
+              />
             </Tooltip>
             <Menu
               sx={{ mt: "45px" }}
@@ -172,14 +179,13 @@ function Header() {
             >
               {settings.map((setting, index) => (
                 <MenuItem key={index} onClick={handleCloseUserMenu}>
-                  <Typography
-                    textAlign="center"
-                    // onClick={handleUserMenuClick}
+                  <Button
+                    // key={index}
+                    component={NavLink}
+                    to={`${baseurl}/${setting.page}`}
                   >
-                    <Link to={`${baseurl}/${setting.page}`}>
-                      {setting.menu}
-                    </Link>
-                  </Typography>
+                    {setting.menu}
+                  </Button>
                 </MenuItem>
               ))}
             </Menu>
