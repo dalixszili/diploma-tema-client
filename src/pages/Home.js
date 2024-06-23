@@ -142,7 +142,7 @@ function Home() {
 
       if (searchParams.get("p") === "register") {
         setActiveItem("Belépés/Regisztráció");
-        setPage(<Registration setPage={setPage} />);
+        setPage(<Registration setPage={setPage} deadlines={deadlines} />);
       }
       if (searchParams.get("p") === "documents" && user && deadlines) {
         setActiveItem("Dolgozatok");
