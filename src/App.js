@@ -2,8 +2,7 @@ import React from "react";
 import Dashboard from "./pages_admin/Dashboard";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Users from "./pages_admin/Users";
-import LogoutAdmin from "./components_admin/LogoutAdmin";
-import Logout from "./components/Logout";
+import Logout from "./components_admin/Logout";
 import Settings from "./pages_admin/Settings";
 import Login from "./components_admin/Login";
 import Menus from "./pages_admin/Menus";
@@ -11,10 +10,6 @@ import Pages from "./pages_admin/Pages";
 import AddPage from "./pages_admin/AddPage";
 import UpdatePage from "./pages_admin/UpdatePage";
 import Home from "./pages/Home";
-import VerifyEmail from "./pages/VerifyEmail";
-import ResetPassword from "./pages/ResetPassword";
-import Account from "./pages_admin/Account";
-// import UpdateProject from "./components/UpdateProject";
 
 function App() {
   return (

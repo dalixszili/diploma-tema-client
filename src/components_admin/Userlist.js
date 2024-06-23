@@ -45,6 +45,10 @@ function Userlist() {
   const [openteacher, setOpenteacher] = useState(false);
   const [order, setOrder] = useState("asc");
   const [orderBy, setOrderBy] = useState("name");
+  const [data, setData] = useState([{}]);
+  const [openstud, setOpenstud] = useState(false);
+  const [openteacher, setOpenteacher] = useState(false);
+
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -71,12 +75,23 @@ function Userlist() {
       }
     });
     setData(newData);
+    const response = await axios.get("http://localhost:5000/users");
+    const responseData = response.data;
+    const newData = responseData.map((obj) => {
+      if (obj.role === 2) {
+        return { ...obj, role: "Diák" };
+      } else {
+        return { ...obj, role: "Zsűri" };
+      }
+    });
+    setData(newData);
   };
 
   const deleteData = async (id) => {
     await axios.patch(
       `${process.env.REACT_APP_BACKEND_BASE_URL}/users/delete/${id}`
     );
+    await axios.patch(`http://localhost:5000/users/delete/${id}`);
     fetchData();
   };
   // () => editData(item.id)
@@ -171,6 +186,16 @@ function Userlist() {
           </Button>
         </Grid>
       </Grid>
+    <div
+      style={{
+        marginTop: 100,
+        marginLeft: "auto",
+        marginRight: "auto",
+        width: "80%",
+      }}
+    >
+      <h1>Felhasználók</h1>
+      <h3>Diákok és zsűritagok kezelése</h3>
 
       <Grid
         flexDirection={"column"}
@@ -197,6 +222,21 @@ function Userlist() {
                   setOrderBy={setOrderBy}
                 />
 
+              <TableRow
+                sx={{
+                  borderBottom: "2px solid black",
+                  "& th": {
+                    fontSize: "1.25rem",
+                    color: "rgba(96, 96, 96)",
+                  },
+                }}
+              >
+                <TableCell>Név</TableCell>
+                <TableCell>E-mail</TableCell>
+                <TableCell>Egyetem</TableCell>
+                <TableCell>Kar</TableCell>
+                <TableCell>Szak</TableCell>
+                <TableCell>Évfolyam</TableCell>
                 <TableCell>Jog</TableCell>
                 <TableCell align="center">Eszközök</TableCell>
               </TableRow>
@@ -229,11 +269,42 @@ function Userlist() {
                       >
                         Szerkesztés
                       </Button>
+              {data.map((item, index) => (
+                <TableRow
+                  key={index}
+                  sx={{
+                    ":hover": { bgcolor: "#edfff2" },
+                  }}
+                >
+                  <TableCell>{item.name}</TableCell>
+                  <TableCell>{item.email}</TableCell>
+                  <TableCell>{item.university}</TableCell>
+                  <TableCell>{item.department}</TableCell>
+                  <TableCell>{item.profile}</TableCell>
+                  <TableCell>{item.year}</TableCell>
+                  <TableCell>{item.role}</TableCell>
+                  <TableCell>
+                    <Button
+                      variant="contained"
+                      startIcon={<ModeEditIcon />}
+                      sx={{
+                        backgroundColor: "#06d48f",
+                        ":hover": { bgcolor: "#06f48f" },
+                      }}
+                      onClick={() => editData(item.id)}
+                    >
+                      Szerkesztés
+                    </Button>
 
                       {/* Update Student  */}
 
                       <Dialog open={openstud} onClose={handleClose}>
                         <DialogTitle>Felhasználó Szerkesztése</DialogTitle>
+                    {/* Update Student  */}
+
+                    <Dialog open={openstud} onClose={handleClose}>
+                      <DialogTitle>Felhasználó Szerkesztése</DialogTitle>
+                      <DialogContent>
                         <form
                           sx={{ width: "100%", marginTop: 20 }}
                           onSubmit={handleSubmit}
@@ -465,6 +536,231 @@ function Userlist() {
                           </Button>
                         </DialogActions>
                       </Dialog>
+                          <TextField
+                            variant="outlined"
+                            margin="normal"
+                            required
+                            fullWidth
+                            id="name"
+                            label="Név"
+                            name="name"
+                            defaultValue={formData.name}
+                            onChange={(e) => {
+                              setFormData({
+                                ...formData,
+                                [e.target.name]: e.target.value,
+                              });
+                            }}
+                          />
+                          <TextField
+                            variant="outlined"
+                            margin="normal"
+                            required
+                            fullWidth
+                            id="email"
+                            label="E-mail:"
+                            name="email"
+                            defaultValue={formData.email}
+                            onChange={(e) => {
+                              setFormData({
+                                ...formData,
+                                [e.target.name]: e.target.value,
+                              });
+                            }}
+                          />
+                          <TextField
+                            margin="normal"
+                            required
+                            fullWidth
+                            name="university"
+                            label="Egyetem:"
+                            id="university"
+                            defaultValue={formData.university}
+                            onChange={(e) => {
+                              setFormData({
+                                ...formData,
+                                [e.target.name]: e.target.value,
+                              });
+                            }}
+                          />
+                          <TextField
+                            margin="normal"
+                            required
+                            fullWidth
+                            name="department"
+                            label="Kar:"
+                            id="department"
+                            defaultValue={formData.department}
+                            onChange={(e) => {
+                              setFormData({
+                                ...formData,
+                                [e.target.name]: e.target.value,
+                              });
+                            }}
+                          />
+                          <TextField
+                            margin="normal"
+                            required
+                            fullWidth
+                            name="profile"
+                            label="Szak:"
+                            id="profile"
+                            defaultValue={formData.profile}
+                            onChange={(e) => {
+                              setFormData({
+                                ...formData,
+                                [e.target.name]: e.target.value,
+                              });
+                            }}
+                          />
+                          <TextField
+                            margin="normal"
+                            required
+                            fullWidth
+                            name="year"
+                            label="Évfolyam:"
+                            type="number"
+                            InputProps={{ inputProps: { min: 1, max: 4 } }}
+                            id="year"
+                            defaultValue={formData.year}
+                            onChange={(e) => {
+                              if (e.target.value > 0 && e.target.value < 5) {
+                                setFormData({
+                                  ...formData,
+                                  [e.target.name]: e.target.value,
+                                });
+                              }
+                            }}
+                          />
+                          <FormControl fullWidth>
+                            <InputLabel id="demo-simple-select-label">
+                              Jog
+                            </InputLabel>
+                            <Select
+                              labelId="demo-simple-select-label"
+                              id="demo-simple-select"
+                              name="role"
+                              onChange={(e) => {
+                                setFormData({
+                                  ...formData,
+                                  [e.target.name]: e.target.value,
+                                });
+                              }}
+                            >
+                              <MenuItem value={2}>Diák</MenuItem>
+                              <MenuItem value={3}>Zsűri</MenuItem>
+                            </Select>
+                          </FormControl>
+                        </form>
+                      </DialogContent>
+                      <DialogActions>
+                        <Button onClick={handleClose} color="primary">
+                          Bezárás
+                        </Button>
+                        <Button
+                          type="submit"
+                          sx={{
+                            color: "white",
+                            backgroundColor: "#06d48f",
+                            ":hover": { bgcolor: "#06f48f" },
+                          }}
+                        >
+                          Mentés
+                        </Button>
+                      </DialogActions>
+                    </Dialog>
+
+                    {/* Update Teacher  */}
+
+                    <Dialog open={openteacher} onClose={handleClose}>
+                      <DialogTitle>Felhasználó Szerkesztése</DialogTitle>
+                      <DialogContent>
+                        <form
+                          sx={{ width: "100%", marginTop: 20 }}
+                          onSubmit={handleSubmit}
+                        >
+                          <TextField
+                            variant="outlined"
+                            margin="normal"
+                            required
+                            fullWidth
+                            id="name"
+                            label="Név"
+                            name="name"
+                            defaultValue={formData.name}
+                            onChange={(e) => {
+                              setFormData({
+                                ...formData,
+                                [e.target.name]: e.target.value,
+                              });
+                            }}
+                          />
+                          <TextField
+                            variant="outlined"
+                            margin="normal"
+                            required
+                            fullWidth
+                            id="email"
+                            label="E-mail:"
+                            name="email"
+                            defaultValue={formData.email}
+                            onChange={(e) => {
+                              setFormData({
+                                ...formData,
+                                [e.target.name]: e.target.value,
+                              });
+                            }}
+                          />
+                          <TextField
+                            variant="outlined"
+                            margin="normal"
+                            required
+                            fullWidth
+                            id="employment"
+                            label="Munkahely:"
+                            name="employment"
+                            defaultValue={formData.employment}
+                            onChange={(e) => {
+                              setFormData({
+                                ...formData,
+                                [e.target.name]: e.target.value,
+                              });
+                            }}
+                          />
+                          <TextField
+                            variant="outlined"
+                            margin="normal"
+                            required
+                            fullWidth
+                            id="job_title"
+                            label="Beosztás:"
+                            name="job_title"
+                            defaultValue={formData.job_title}
+                            onChange={(e) => {
+                              setFormData({
+                                ...formData,
+                                [e.target.name]: e.target.value,
+                              });
+                            }}
+                          />
+                        </form>
+                      </DialogContent>
+                      <DialogActions>
+                        <Button onClick={handleClose} color="primary">
+                          Bezárás
+                        </Button>
+                        <Button
+                          onClick={handleSubmit}
+                          sx={{
+                            color: "white",
+                            backgroundColor: "#06d48f",
+                            ":hover": { bgcolor: "#06f48f" },
+                          }}
+                        >
+                          Mentés
+                        </Button>
+                      </DialogActions>
+                    </Dialog>
 
                       <Button
                         variant="contained"

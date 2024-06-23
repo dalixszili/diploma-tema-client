@@ -12,6 +12,7 @@ import Tooltip from "@mui/material/Tooltip";
 import MenuItem from "@mui/material/MenuItem";
 import { NavLink } from "react-router-dom";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
+import { Link } from "react-router-dom";
 
 const pages = [
   { menu: "Áttekintés", page: "" },
@@ -143,6 +144,19 @@ function Header() {
                 }}
               >
                 {page.menu}
+                key={index}
+                component={Link}
+                to={`${baseurl}/${page.page}`}
+                // onClick={handleCloseNavMenu}
+                sx={{ my: 2, color: "white", display: "block" }}
+              >
+                {/* <Link
+                  style={{ textDecoration: "none", color: "inherit" }}
+                  to={`${baseurl}/${page.page}`}
+                >
+                  {page.menu}
+                </Link> */}
+                {page.menu}
               </Button>
             ))}
           </Box>
@@ -186,6 +200,16 @@ function Header() {
                   >
                     {setting.menu}
                   </Button>
+              {settings.map((setting, index) => (
+                <MenuItem key={index} onClick={handleCloseUserMenu}>
+                  <Typography
+                    textAlign="center"
+                    // onClick={handleUserMenuClick}
+                  >
+                    <Link to={`${baseurl}/${setting.page}`}>
+                      {setting.menu}
+                    </Link>
+                  </Typography>
                 </MenuItem>
               ))}
             </Menu>
