@@ -2,10 +2,8 @@ import React, { useState, useEffect } from "react";
 import DeleteIcon from "@mui/icons-material/Delete";
 import ModeEditIcon from "@mui/icons-material/ModeEdit";
 import EmailIcon from "@mui/icons-material/Email";
-import EmailIcon from "@mui/icons-material/Email";
 import axios from "axios";
 import {
-  Box,
   Box,
   Button,
   Dialog,
@@ -26,21 +24,7 @@ import {
   TableRow,
   TextField,
   Typography,
-  Typography,
 } from "@mui/material";
-import TableHeadRow, {
-  getComparator,
-  sortedRowData,
-} from "../helper/TableHeadRow";
-
-const headerCells = [
-  { name: "name", label: "Név" },
-  { name: "email", label: "E-mail" },
-  { name: "university", label: "Egyetem" },
-  { name: "department", label: "Kar" },
-  { name: "profile", label: "Szak" },
-  { name: "year", label: "Évfolyam" },
-];
 import TableHeadRow, {
   getComparator,
   sortedRowData,
