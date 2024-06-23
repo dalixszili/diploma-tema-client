@@ -25,6 +25,27 @@ export const LoginUser = createAsyncThunk(
     }
   }
 );
+
+// export const RegisterUser = createAsyncThunk(
+//   "user/RegisterUser",
+//   async (user, thunkAPI) => {
+//     try {
+//       const response = await axios.post("http://localhost:5000/register", {
+//         name: user.name,
+//         email: user.email,
+//         password: user.password,
+//         confpassword: user.confpassword,
+//       });
+//       return response.data;
+//     } catch (error) {
+//       if (error.response) {
+//         const message = error.response.data.msg;
+//         return thunkAPI.rejectWithValue(message);
+//       }
+//     }
+//   }
+// );
+
 export const GetMe = createAsyncThunk("user/getMe", async (_, thunkAPI) => {
   try {
     const response = await axios.get("http://localhost:5000/me");
@@ -61,6 +82,20 @@ export const authSlice = createSlice({
       state.isError = true;
       state.message = action.payload;
     });
+
+    // builder.addCase(RegisterUser.pending, (state) => {
+    //   state.isLoading = true;
+    // });
+    // builder.addCase(RegisterUser.fulfilled, (state, action) => {
+    //   state.isLoading = false;
+    //   state.isSucces = true;
+    //   state.user = action.payload;
+    // });
+    // builder.addCase(RegisterUser.rejected, (state, action) => {
+    //   state.isLoading = false;
+    //   state.isError = true;
+    //   state.message = action.payload;
+    // });
 
     builder.addCase(GetMe.pending, (state) => {
       state.isLoading = true;

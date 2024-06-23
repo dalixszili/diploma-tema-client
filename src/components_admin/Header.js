@@ -1,43 +1,3 @@
-// const Header = () => {
-//   // const [value, setValue] = React.useState(0);
-
-//   // const handleChange = (event, newValue) => {
-//   //   setValue(newValue);
-//   // };
-//   return (
-//     <React.Fragment>
-//       <AppBar sx={{ background: "#06d48f" }}>
-//         <Toolbar>
-//           <Typography>TDK ADMIN</Typography>
-//           {/* <Tabs
-//             value={value}
-//             onChange={handleChange}
-//             sx={{ marginLeft: "auto" }}
-//           >
-//             <Tab label="Áttekintés" />
-//             <Tab
-//               icon={<PeopleIcon />}
-//               iconPosition="start"
-//               label="Felhasználok"
-//             />
-//           </Tabs> */}
-//           <Button sx={{ marginLeft: "auto" }} color="inherit">
-//             <Link to="/admin">Áttekintés</Link>
-//           </Button>
-//           <Button sx={{ marginLeft: "auto" }} color="inherit">
-//             <Link to="/admin/users">Felhasználók</Link>
-//           </Button>
-//           <Button sx={{ marginLeft: "auto" }} color="inherit">
-//             <Link to="/admin/logout">Kijelentkezés</Link>
-//           </Button>
-//         </Toolbar>
-//       </AppBar>
-//     </React.Fragment>
-//   );
-// };
-
-// export default Header;
-
 import * as React from "react";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
@@ -47,17 +7,18 @@ import Typography from "@mui/material/Typography";
 import Menu from "@mui/material/Menu";
 import MenuIcon from "@mui/icons-material/Menu";
 import Container from "@mui/material/Container";
-import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import Tooltip from "@mui/material/Tooltip";
 import MenuItem from "@mui/material/MenuItem";
-import { Link, useNavigate } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
-import { LoginUser, reset } from "../features/AuthSlice";
+import { NavLink } from "react-router-dom";
+import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 
 const pages = [
   { menu: "Áttekintés", page: "" },
+  { menu: "Menüpontok", page: "menus" },
+  { menu: "Oldalak", page: "pages" },
   { menu: "Felhasználók", page: "users" },
+  { menu: "Beállítások", page: "settings" },
 ];
 const settings = [
   { menu: "Személyes Adatok", page: "account" },
@@ -67,11 +28,8 @@ function Header() {
   const [anchorElNav, setAnchorElNav] = React.useState(null);
   const [anchorElUser, setAnchorElUser] = React.useState(null);
   const baseurl = "/admin";
-
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
-
-  const { user } = useSelector((state) => state.auth);
+  const pathNameArray = window.location.pathname.split("/");
+  const selectedItem = pathNameArray[pathNameArray.length - 1];
 
   const handleOpenNavMenu = (event) => {
     setAnchorElNav(event.currentTarget);
@@ -88,13 +46,8 @@ function Header() {
     setAnchorElUser(null);
   };
 
-  // const handleUserMenuClick = (event) => {
-  //   if (event.currentTarget.value === "Kijelentkezés")
-  //     console.log(event.currentTarget);
-  // };
-
   return (
-    <AppBar sx={{ background: "#06d48f" }}>
+    <AppBar position="static" sx={{ background: "#06d48f" }}>
       <Container maxWidth="xl">
         <Toolbar disableGutters>
           <Typography
@@ -143,10 +96,12 @@ function Header() {
                 display: { xs: "block", md: "none" },
               }}
             >
-              {pages.map((page) => (
-                <MenuItem key={page} onClick={handleCloseNavMenu}>
+              {pages.map((page, index) => (
+                <MenuItem key={index} onClick={handleCloseNavMenu}>
                   <Typography textAlign="center">
-                    <Link to={`${baseurl}/${page.page}`}>{page.menu}</Link>
+                    <NavLink to={`${baseurl}/${page.page}`}>
+                      {page.menu}
+                    </NavLink>
                   </Typography>
                 </MenuItem>
               ))}
@@ -173,27 +128,38 @@ function Header() {
           </Typography>
 
           <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}>
-            {pages.map((page) => (
+            {pages.map((page, index) => (
               <Button
-                key={page}
-                onClick={handleCloseNavMenu}
-                sx={{ my: 2, color: "white", display: "block" }}
+                key={index}
+                component={NavLink}
+                to={`${baseurl}/${page.page}`}
+                sx={{
+                  backgroundColor: `${
+                    selectedItem === page.page ? "#06f48f" : ""
+                  } `,
+                  my: 2,
+                  color: "white",
+                  display: "block",
+                }}
               >
-                <Link
-                  style={{ textDecoration: "none", color: "inherit" }}
-                  to={`${baseurl}/${page.page}`}
-                >
-                  {page.menu}
-                </Link>
+                {page.menu}
               </Button>
             ))}
           </Box>
 
           <Box sx={{ flexGrow: 0 }}>
-            <Tooltip title="Open settings">
-              <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
-              </IconButton>
+            <Tooltip title="Személyes adatok">
+              <AccountCircleIcon
+                onClick={handleOpenUserMenu}
+                style={{
+                  marginRight: 0,
+                  width: "40",
+                  height: "40",
+                }}
+                sx={{
+                  ":hover": { color: "#eeeeee" },
+                }}
+              />
             </Tooltip>
             <Menu
               sx={{ mt: "45px" }}
@@ -211,16 +177,15 @@ function Header() {
               open={Boolean(anchorElUser)}
               onClose={handleCloseUserMenu}
             >
-              {settings.map((setting) => (
-                <MenuItem key={setting} onClick={handleCloseUserMenu}>
-                  <Typography
-                    textAlign="center"
-                    // onClick={handleUserMenuClick}
+              {settings.map((setting, index) => (
+                <MenuItem key={index} onClick={handleCloseUserMenu}>
+                  <Button
+                    // key={index}
+                    component={NavLink}
+                    to={`${baseurl}/${setting.page}`}
                   >
-                    <Link to={`${baseurl}/${setting.page}`}>
-                      {setting.menu}
-                    </Link>
-                  </Typography>
+                    {setting.menu}
+                  </Button>
                 </MenuItem>
               ))}
             </Menu>
