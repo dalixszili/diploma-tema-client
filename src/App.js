@@ -1,6 +1,6 @@
-import React from "react";
+import React, { useEffect } from "react";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Dashboard from "./pages_admin/Dashboard";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Users from "./pages_admin/Users";
 import LogoutAdmin from "./components_admin/LogoutAdmin";
 import Logout from "./components/Logout";
@@ -14,9 +14,22 @@ import Home from "./pages/Home";
 import VerifyEmail from "./pages/VerifyEmail";
 import ResetPassword from "./pages/ResetPassword";
 import Account from "./pages_admin/Account";
+import axios from "axios";
 // import UpdateProject from "./components/UpdateProject";
 
 function App() {
+  useEffect(() => {
+    const getTitle = async () => {
+      const response = await axios.get(
+        `${process.env.REACT_APP_BACKEND_BASE_URL}/activesettings`
+      );
+
+      if (response.data.website_title) {
+        document.title = response.data.website_title;
+      }
+    };
+    getTitle();
+  }, []);
   return (
     <BrowserRouter>
       <Routes>
@@ -37,6 +50,9 @@ function App() {
         <Route path="/admin/pages" element={<Pages />} />
         <Route path="/admin/addpage" element={<AddPage />} />
         <Route path="/admin/page/:pageId/edit" element={<UpdatePage />} />
+
+        <Route path="*" element={<Navigate to="/" />} />
+        <Route path="admin/*" element={<Navigate to="/admin" />} />
       </Routes>
     </BrowserRouter>
   );

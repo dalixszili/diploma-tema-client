@@ -14,6 +14,8 @@ function ConfirmDeleteDialog({ open, handleClose, handleDelete }) {
       open={open}
       onClose={handleClose}
       aria-describedby="alert-dialog-slide-description"
+      fullWidth
+      maxWidth="sm"
     >
       <DialogTitle>Törlés visszaigazolása</DialogTitle>
       <DialogContent>

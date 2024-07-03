@@ -1,7 +1,7 @@
 import { Box, Typography, useMediaQuery } from "@mui/material";
 import ListOutlinedIcon from "@mui/icons-material/ListOutlined";
 import MenuBookOutlinedIcon from "@mui/icons-material/MenuBookOutlined";
-import FolderCopyOutlinedIcon from "@mui/icons-material/FolderCopyOutlined";
+// import FolderCopyOutlinedIcon from "@mui/icons-material/FolderCopyOutlined";
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 import GroupsOutlinedIcon from "@mui/icons-material/GroupsOutlined";
 import React from "react";
@@ -139,7 +139,7 @@ function Home() {
       </Box>
 
       {/* Dolgozatok */}
-      <Box
+      {/* <Box
         borderRadius={"5px"}
         marginTop={"2vh"}
         paddingBottom={"1.5vh"}
@@ -192,7 +192,7 @@ function Home() {
           szakosztályokhoz tartozó kivonatos füzeteket le lehet tölteni ODT
           formátumban.
         </Typography>
-      </Box>
+      </Box> */}
       {/*  Felhasználók */}
       <Box
         borderRadius={"5px"}

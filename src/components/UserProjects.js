@@ -183,7 +183,11 @@ function UserProjects({ user_id, deadlines }) {
     user.role === 2 ? (
       // Ha dolgozat szerkesztésben van
       openEdit ? (
-        <UpdateProject data={editFormData} deadlines={deadlines} />
+        <UpdateProject
+          data={editFormData}
+          deadlines={deadlines}
+          setopenEdit={setopenEdit}
+        />
       ) : (
         // Diák dolgozatainak listája
         <>

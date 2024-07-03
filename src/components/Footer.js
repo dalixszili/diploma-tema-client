@@ -1,6 +1,6 @@
+import React, { useEffect, useState } from "react";
 import { Card, CardActionArea, CardMedia, Grid } from "@mui/material";
 import axios from "axios";
-import React, { useEffect, useState } from "react";
 
 function Footer() {
   const [data, setData] = useState([]);
@@ -11,7 +11,6 @@ function Footer() {
         `${process.env.REACT_APP_BACKEND_BASE_URL}/sponsors`
       );
       const responseData = response.data;
-      // console.log(response.data);
       setData(responseData);
     };
     fetchData();

@@ -19,6 +19,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import { NavLink } from "react-router-dom";
 import DialogComponent from "./DialogComponent";
 import ConfirmDeleteDialog from "./ConfirmDeleteDialog";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 
 const titleFields = [{ name: "title", label: "Cím", type: "text" }];
 const abstractFields = [
@@ -46,7 +47,7 @@ const teacherFields = [
   { name: "job_title", label: "Beosztás", type: "text" },
 ];
 
-function UpdateProject({ data, deadlines }) {
+function UpdateProject({ data, deadlines, setopenEdit }) {
   const [settings, setSettings] = useState({});
   const [selectedFile, setSelectedFile] = useState(null);
   const [openEditAbstract, setopenEditAbstract] = useState(false);
@@ -606,8 +607,24 @@ function UpdateProject({ data, deadlines }) {
     toScrollRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
   }, []);
 
+  // // Visszlépésre a dolgozatokba lépjen
+  // useEffect(() => {
+  //   window.onpopstate = () => {
+  //     setopenEdit(() => false);
+  //   };
+  //   console.log("test");
+  // });
+
   return (
     <>
+      <Button
+        startIcon={<ArrowBackIcon />}
+        variant="outlined"
+        onClick={() => setopenEdit(() => false)}
+      >
+        Vissza
+      </Button>
+
       {/* Általános adatok, határidővel */}
       <Grid
         container

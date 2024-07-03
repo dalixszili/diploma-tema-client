@@ -58,36 +58,7 @@ function Userlist() {
   });
   const [editId, setEditId] = useState(null);
 
-  const fetchData = async () => {
-    const response = await axios.get(
-      `${process.env.REACT_APP_BACKEND_BASE_URL}/users`
-    );
-    const responseData = response.data;
-    const newData = responseData.map((obj) => {
-      if (obj.role === 2) {
-        return { ...obj, role: "Diák" };
-      } else {
-        return { ...obj, role: "Zsűri" };
-      }
-    });
-    // setData(newData);
-    // const response = await axios.get("http://localhost:5000/users");
-    // const responseData = response.data;
-    // const newData = responseData.map((obj) => {
-    // if (obj.role === 2) {
-    // return { ...obj, role: "Diák" };
-    // } else {
-    // return { ...obj, role: "Zsűri" };
-    // }
-    // });
-    setData(newData);
-  };
-
   const deleteData = async (id) => {
-    await axios.patch(
-      `${process.env.REACT_APP_BACKEND_BASE_URL}/users/delete/${id}`
-    );
-    await axios.patch(`http://localhost:5000/users/delete/${id}`);
     await axios.patch(
       `${process.env.REACT_APP_BACKEND_BASE_URL}/users/delete/${id}`
     );
@@ -130,10 +101,6 @@ function Userlist() {
     updateData();
   };
 
-  useEffect(() => {
-    fetchData();
-  }, []);
-
   const handleOpen = (role) => {
     if (role === 2) setOpenstud(true);
     else setOpenteacher(true);
@@ -155,6 +122,25 @@ function Userlist() {
     setOpenstud(false);
     setOpenteacher(false);
   };
+
+  const fetchData = async () => {
+    const response = await axios.get(
+      `${process.env.REACT_APP_BACKEND_BASE_URL}/users`
+    );
+    const responseData = response.data;
+    const newData = responseData.map((obj) => {
+      if (obj.role === 2) {
+        return { ...obj, role: "Diák" };
+      } else {
+        return { ...obj, role: "Zsűri" };
+      }
+    });
+    setData(newData);
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   return (
     <Box>

@@ -7,6 +7,7 @@ import { LoginUser, reset } from "../features/AuthSlice";
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [errorMsg, setErrorMsg] = useState("");
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -23,6 +24,7 @@ function Login() {
   };
 
   const handleSubmit = (event) => {
+    setErrorMsg(() => "");
     event.preventDefault();
     dispatch(LoginUser({ email, password }));
   };
@@ -30,6 +32,9 @@ function Login() {
   useEffect(() => {
     if (user && user.role === 1) {
       navigate("/admin");
+    }
+    if (user && user.role !== 1) {
+      setErrorMsg(() => "Belépés megtagadva !");
     }
     dispatch(reset());
   }, [user, isSucces, dispatch, navigate]);
@@ -49,7 +54,17 @@ function Login() {
       <Typography component="h1" variant="h4">
         Bejelentkezés
       </Typography>
-      {isError && <p style={{ color: "red" }}>{message}</p>}
+      {isError && (
+        <Typography component={"p"} variant="body" style={{ color: "red" }}>
+          {message}
+        </Typography>
+      )}
+
+      {errorMsg && (
+        <Typography component={"p"} variant="body" style={{ color: "red" }}>
+          {errorMsg}
+        </Typography>
+      )}
       <form sx={{ width: "100%", marginTop: 20 }} onSubmit={handleSubmit}>
         <TextField
           variant="outlined"
